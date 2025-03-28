@@ -45,9 +45,9 @@ export async function GET(request: Request) {
 
     // Apply sorting
     if (sort === 'newest') {
-      facts.sort((a, b) => b.year - a.year);
+      facts.sort((a, b) => (b.year ?? 0) - (a.year ?? 0));
     } else if (sort === 'oldest') {
-      facts.sort((a, b) => a.year - b.year);
+      facts.sort((a, b) => (a.year ?? 0) - (b.year ?? 0));
     } else if (sort === 'az') {
       facts.sort((a, b) => a.question.localeCompare(b.question));
     } else if (sort === 'za') {
