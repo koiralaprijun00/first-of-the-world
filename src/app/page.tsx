@@ -236,7 +236,7 @@ const Home: React.FC = () => {
           </div>
 
           {/* Scrollable content area */}
-          <div className="flex-1 p-6 overflow-y-auto">
+          <div className="flex-1 px-8  overflow-y-auto">
             <FactsGrid
               facts={filteredFacts}
               totalFacts={filteredFacts.length}
