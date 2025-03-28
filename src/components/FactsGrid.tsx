@@ -5,10 +5,6 @@ import { Fact } from '../data/factsData';
 interface FactsGridProps {
   facts: Fact[] | undefined; // Allow facts to be undefined
   totalFacts: number;
-  currentPage: number;
-  setCurrentPage: (page: number) => void;
-  loadingMore: boolean;
-  setLoadingMore: (loading: boolean) => void;
   sortOption: string;
   setSortOption: (option: string) => void;
   isDarkMode: boolean;
@@ -20,36 +16,20 @@ interface FactsGridProps {
   setSelectedCategories: (categories: string[]) => void;
   setSelectedCountries: (countries: string[]) => void;
   setSelectedTimeperiods: (timeperiods: string[]) => void;
-  hasMore: boolean;
 }
 
 const FactsGrid: React.FC<FactsGridProps> = ({
   facts,
-  totalFacts,
-  currentPage,
-  setCurrentPage,
-  loadingMore,
-  setLoadingMore,
   sortOption,
   setSortOption,
   isDarkMode,
-  bookmarkedFacts,
-  toggleBookmark,
   openFactModal,
   getCategoryColor,
   setSearchQuery,
   setSelectedCategories,
   setSelectedCountries,
   setSelectedTimeperiods,
-  hasMore,
 }) => {
-  const handleLoadMore = () => {
-    if (!loadingMore && hasMore) {
-      setLoadingMore(true);
-      setCurrentPage(currentPage + 1);
-    }
-  };
-
   return (
     <div className="flex-1">
       {/* Sorting and Filtering Controls */}
@@ -62,7 +42,7 @@ const FactsGrid: React.FC<FactsGridProps> = ({
             id="sort"
             value={sortOption}
             onChange={(e) => setSortOption(e.target.value)}
-            className={`border rounded p-2 ${isDarkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'}`}
+            className={`border rounded-md p-2 ${isDarkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'}`}
           >
             <option value="newest">Newest</option>
             <option value="oldest">Oldest</option>
@@ -92,25 +72,24 @@ const FactsGrid: React.FC<FactsGridProps> = ({
           facts.map((fact) => (
             <div
               key={fact.id}
-              className={`p-6 rounded-lg shadow-md cursor-pointer transition-transform transform hover:scale-105 ${
-                isDarkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'
+              className={`p-6 rounded-lg shadow-md cursor-pointer transition-transform transform hover:scale-102 hover:shadow-lg ${
+                isDarkMode ? 'bg-gray-800 text-white' : ' text-gray-900'
               }`}
               onClick={() => openFactModal(fact)}
             >
               <div className="flex justify-between items-center">
-              <span className="text-sm mb-4">{fact.year}</span>
+                <span className="text-sm mb-4">{fact.year}</span>
               </div>
-              <h3 className="text-md">{fact.question}</h3>
-              <p className="text-lg font-bold">{fact.answer}</p>
+              <h3 className="text-md mb-8">{fact.question}</h3>
+              <p className="text-lg font-bold mb-2">{fact.answer}</p>
               <p className="text-sm mt-2 mb-4">{fact.description}</p>
               <span
-                  className={`text-sm font-semibold px-3 py-1 rounded-full ${getCategoryColor(
-                    fact.category
-                  )} text-white`}
-                >
-                  {fact.category}
-                </span>
-
+                className={`uppercase text-xs font-semibold px-3 py-1 rounded-md ${getCategoryColor(
+                  fact.category
+                )} text-white`}
+              >
+                {fact.category}
+              </span>
             </div>
           ))
         ) : (
@@ -118,30 +97,6 @@ const FactsGrid: React.FC<FactsGridProps> = ({
             {facts === undefined ? 'Loading facts...' : 'No facts available.'}
           </p>
         )}
-      </div>
-
-      {/* Load More Button */}
-      {hasMore && Array.isArray(facts) && facts.length > 0 && (
-        <div className="mt-8 text-center">
-          <button
-            onClick={handleLoadMore}
-            disabled={loadingMore}
-            className={`px-6 py-2 rounded-lg ${
-              isDarkMode
-                ? 'bg-blue-600 hover:bg-blue-700 text-white'
-                : 'bg-blue-500 hover:bg-blue-600 text-white'
-            } ${loadingMore ? 'opacity-50 cursor-not-allowed' : ''}`}
-          >
-            {loadingMore ? 'Loading...' : 'Load More'}
-          </button>
-        </div>
-      )}
-
-      {/* Total Facts */}
-      <div className="mt-4 text-center">
-        <p className="text-sm">
-          Showing {Array.isArray(facts) ? facts.length : 0} of {totalFacts} facts
-        </p>
       </div>
     </div>
   );

@@ -1,6 +1,5 @@
-// src/components/FiltersSidebar.tsx
 import React from 'react';
-import { Search, SlidersHorizontal, ChevronDown, Globe, Book, Calendar, X } from 'lucide-react';
+import { SlidersHorizontal, ChevronDown, Globe, Book, Calendar, X } from 'lucide-react';
 import { Fact } from '../data/factsData';
 import { FilterAccordion } from './FilterAccordion';
 import { CheckboxGroup } from './CheckboxGroup';
@@ -18,10 +17,11 @@ interface FiltersSidebarProps {
   setSelectedTimeperiods: (value: string[]) => void;
   isDarkMode: boolean;
   toggleDarkMode: () => void;
-  facts?: Fact[]; // Make facts optional
+  facts?: Fact[];
   categories: string[];
   countries: string[];
   timeperiods: string[];
+  resetFilters: () => void; 
 }
 
 export const FiltersSidebar: React.FC<FiltersSidebarProps> = ({
@@ -36,18 +36,12 @@ export const FiltersSidebar: React.FC<FiltersSidebarProps> = ({
   selectedTimeperiods,
   setSelectedTimeperiods,
   isDarkMode,
-  facts = [], // Provide a default empty array
+  facts = [],
   categories,
   countries,
   timeperiods,
+  resetFilters,
 }) => {
-  const clearAllFilters = () => {
-    setSearchQuery('');
-    setSelectedCategories(['all']);
-    setSelectedCountries(['all']);
-    setSelectedTimeperiods(['all']);
-  };
-
   const hasActiveFilters =
     searchQuery !== '' ||
     !selectedCategories.includes('all') ||
@@ -65,7 +59,8 @@ export const FiltersSidebar: React.FC<FiltersSidebarProps> = ({
 
   return (
     <>
-      <div className="md:hidden mb-4">
+      {/* Mobile Filter Toggle Button */}
+      <div className="md:hidden mb-4 px-4">
         <button
           onClick={() => setShowFilters(!showFilters)}
           className={`w-full flex items-center justify-between px-4 py-3 rounded-lg border ${
@@ -87,13 +82,41 @@ export const FiltersSidebar: React.FC<FiltersSidebarProps> = ({
         </button>
       </div>
 
+      {/* Sidebar Content */}
       <aside
         id="filters-panel"
-        className={`w-full md:w-1/4 md:pr-6 mb-6 md:mb-0 ${showFilters ? 'block' : 'hidden md:block'}`}
+        className={`${
+          showFilters
+            ? 'fixed top-16 left-0 right-0 bottom-0 z-40 bg-white dark:bg-gray-900 md:bg-transparent md:dark:bg-transparent'
+            : 'hidden md:block'
+        } md:fixed md:top-16 md:left-0 md:w-64 md:h-[calc(100vh-4rem)] md:overflow-y-auto md:border-r md:border-gray-200 md:dark:border-gray-700`}
       >
-        <div className={`p-4 rounded-lg border ${isDarkMode ? 'bg-gray-800/50 border-gray-700' : 'bg-gray-50/80 border-gray-200'}`}>
-          {/* ... rest of the component remains the same ... */}
+        <div className={`h-full p-4 md:p-6 ${isDarkMode ? 'bg-gray-800/50 md:bg-gray-800' : 'bg-gray-50/80 md:bg-white'} md:border-0 border border-gray-200 dark:border-gray-700 rounded-lg`}>
+          {/* Close Button for Mobile */}
+          <div className="md:hidden flex justify-end mb-4">
+            <button
+              onClick={() => setShowFilters(false)}
+              className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
+
+          {/* Filter Content */}
           <div className="space-y-4">
+            <div className="relative">
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search facts..."
+                className={`w-full pl-10 pr-4 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
+                  isDarkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-200 text-gray-800'
+                }`}
+              />
+              <SlidersHorizontal className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+            </div>
+
             <FilterAccordion
               title="Category"
               icon={<Book className="h-4 w-4 text-indigo-600" />}
@@ -156,9 +179,26 @@ export const FiltersSidebar: React.FC<FiltersSidebarProps> = ({
                 isDarkMode={isDarkMode}
               />
             </FilterAccordion>
+
+            {hasActiveFilters && (
+              <button
+                onClick={resetFilters}
+                className="w-full mt-4 px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              >
+                Reset Filters
+              </button>
+            )}
           </div>
         </div>
       </aside>
+
+      {/* Mobile Overlay */}
+      {showFilters && (
+        <div
+          className="fixed top-16 left-0 right-0 bottom-0 bg-black bg-opacity-50 z-30 md:hidden"
+          onClick={() => setShowFilters(false)}
+        />
+      )}
     </>
   );
 };
