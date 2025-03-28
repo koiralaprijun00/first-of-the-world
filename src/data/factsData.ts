@@ -1,4 +1,3 @@
-// src/data/factsData.ts
 export interface Fact {
   id: number;
   question: string;
@@ -6,7 +5,7 @@ export interface Fact {
   description: string;
   category: string;
   country: string;
-  year: number;
+  year: number | null;
   timeperiod: string;
   source: string;
   likes: number;

@@ -84,10 +84,6 @@ export const Header: React.FC<HeaderProps> = ({
             </div>
 
             <div className="flex items-center space-x-6">
-              <nav className="hidden md:flex items-center space-x-8">
-                <Link href="/submit-fact" className={`font-medium hover:text-indigo-600 transition-colors`}>Submit a Fact</Link>
-              </nav>
-              
               <button 
                 onClick={toggleDarkMode} 
                 className={`p-2 rounded-md ${isDarkMode ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-100 hover:bg-gray-200'} transition-colors duration-300`}

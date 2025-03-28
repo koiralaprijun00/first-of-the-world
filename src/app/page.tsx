@@ -1,13 +1,13 @@
 'use client';
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { FiX } from 'react-icons/fi'; // Importing the X icon from react-icons
+import { FiX } from 'react-icons/fi';
 import FactsGrid from '../components/FactsGrid';
 import { FactModal } from '../components/FactModal';
 import { Header } from '../components/Header';
 import { FiltersSidebar as Sidebar } from '../components/FiltersSidebar';
 import factsData1 from '../data/facts/facts_1.json' assert { type: 'json' };
-import factsData2 from '../data/facts/facts_2.json'assert { type: 'json' };
+import factsData2 from '../data/facts/facts_2.json' assert { type: 'json' };
 import factsData3 from '../data/facts/facts_3.json' assert { type: 'json' };
 import factsData4 from '../data/facts/facts_4.json' assert { type: 'json' };
 import categoriesData from '../data/categories.json';
@@ -28,6 +28,7 @@ const Home: React.FC = () => {
   const [selectedCountries, setSelectedCountries] = useState<string[]>(['all']);
   const [selectedTimeperiods, setSelectedTimeperiods] = useState<string[]>(['all']);
 
+  // Load initial data
   useEffect(() => {
     const savedMode = localStorage.getItem('darkMode');
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -35,7 +36,12 @@ const Home: React.FC = () => {
     setIsDarkMode(initialDarkMode);
     document.documentElement.classList.toggle('dark', initialDarkMode);
 
-    const combinedFacts = [...factsData1, ...factsData2, ...factsData3,...factsData4] as Fact[];
+    const combinedFacts = [
+      ...factsData1,
+      ...factsData2,
+      ...factsData3,
+      ...factsData4,
+    ] as Fact[];
     setFacts(combinedFacts);
 
     const savedBookmarks = localStorage.getItem('bookmarkedFacts');
@@ -49,10 +55,12 @@ const Home: React.FC = () => {
     }
   }, []);
 
+  // Save bookmarks to localStorage
   useEffect(() => {
     localStorage.setItem('bookmarkedFacts', JSON.stringify(bookmarkedFacts));
   }, [bookmarkedFacts]);
 
+  // Toggle dark mode
   const toggleDarkMode = () => {
     setIsDarkMode((prev) => {
       const newDarkMode = !prev;
@@ -62,12 +70,14 @@ const Home: React.FC = () => {
     });
   };
 
+  // Toggle bookmark
   const toggleBookmark = (factId: number) => {
     setBookmarkedFacts((prev) =>
       prev.includes(factId) ? prev.filter((id) => id !== factId) : [...prev, factId]
     );
   };
 
+  // Open/close fact modal
   const openFactModal = (fact: Fact) => {
     setCurrentFact(fact);
     setIsModalOpen(true);
@@ -80,6 +90,7 @@ const Home: React.FC = () => {
     setTimeout(() => setCurrentFact(null), 200);
   };
 
+  // Reset filters
   const resetFilters = () => {
     setSearchQuery('');
     setSelectedCategories(['all']);
@@ -88,54 +99,80 @@ const Home: React.FC = () => {
     setSortOption('newest');
   };
 
+  // Filter and sort facts
   const filteredFacts = useMemo(() => {
     let filtered = [...facts];
+
+    // Search filter with partial word matching
     if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase().trim();
-      filtered = filtered.filter(
-        (fact) =>
-          fact.question.toLowerCase().includes(query) ||
-          fact.answer.toLowerCase().includes(query) ||
-          fact.description.toLowerCase().includes(query)
-      );
+      const queryWords = searchQuery.toLowerCase().split(/\s+/).filter(word => word.length > 0);
+      filtered = filtered.filter((fact) => {
+        const text = `${fact.question} ${fact.answer} ${fact.description}`.toLowerCase();
+        return queryWords.every(word => text.includes(word));
+      });
     }
+
+    // Category filter
     if (!selectedCategories.includes('all')) {
       filtered = filtered.filter((fact) => selectedCategories.includes(fact.category));
     }
+
+    // Country filter
     if (!selectedCountries.includes('all')) {
       filtered = filtered.filter((fact) => selectedCountries.includes(fact.country));
     }
+
+    // Timeperiod filter
     if (!selectedTimeperiods.includes('all')) {
       filtered = filtered.filter((fact) => selectedTimeperiods.includes(fact.timeperiod));
     }
+
+    // Sorting
     switch (sortOption) {
-      case 'newest': return filtered.sort((a, b) => (b.year ?? 0) - (a.year ?? 0));
-      case 'oldest': return filtered.sort((a, b) => (a.year ?? 0) - (b.year ?? 0));
-      case 'az': return filtered.sort((a, b) => a.question.localeCompare(b.question));
-      case 'za': return filtered.sort((a, b) => b.question.localeCompare(a.question));
-      default: return filtered;
+      case 'newest':
+        return filtered.sort((a, b) => (b.year ?? 0) - (a.year ?? 0));
+      case 'oldest':
+        return filtered.sort((a, b) => (a.year ?? 0) - (b.year ?? 0));
+      case 'az':
+        return filtered.sort((a, b) => a.question.localeCompare(b.question));
+      case 'za':
+        return filtered.sort((a, b) => b.question.localeCompare(a.question));
+      default:
+        return filtered;
     }
   }, [facts, searchQuery, selectedCategories, selectedCountries, selectedTimeperiods, sortOption]);
 
-  const categoryColors = useMemo(() => ({
-    sports: 'bg-red-500', space: 'bg-blue-500', architecture: 'bg-yellow-500', invention: 'bg-green-500',
-    education: 'bg-purple-500', adventure: 'bg-teal-500', entertainment: 'bg-pink-500', medicine: 'bg-indigo-500',
-    science: 'bg-orange-500', politics: 'bg-gray-500',
-  }), []);
+  // Category colors
+  const categoryColors = useMemo(
+    () => ({
+      sports: 'bg-red-500',
+      space: 'bg-blue-500',
+      architecture: 'bg-yellow-500',
+      invention: 'bg-green-500',
+      education: 'bg-purple-500',
+      adventure: 'bg-teal-500',
+      entertainment: 'bg-pink-500',
+      medicine: 'bg-indigo-500',
+      science: 'bg-orange-500',
+      politics: 'bg-gray-500',
+    }),
+    []
+  );
 
   const getCategoryColor = (category: string): string => {
     return categoryColors[category as keyof typeof categoryColors] || 'bg-gray-500';
   };
 
+  // Loading state
   if (isDarkMode === null) {
     return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
   }
 
   return (
-    <div className={`min-h-screen flex flex-col ${isDarkMode ? 'dark bg-gray-900 text-white' : ' text-gray-900'}`}>
+    <div className={`min-h-screen flex flex-col ${isDarkMode ? 'dark bg-gray-900 text-white' : 'text-gray-900'}`}>
       {/* Header - Full width */}
       <div className="w-full">
-        <Header 
+        <Header
           isDarkMode={isDarkMode}
           setIsDarkMode={setIsDarkMode}
           toggleDarkMode={toggleDarkMode}
@@ -150,22 +187,26 @@ const Home: React.FC = () => {
       <div className="flex flex-1">
         {/* Mobile sidebar toggle - Only show on mobile */}
         <div className="md:hidden p-4">
-          <button 
+          <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             className={`w-full flex items-center justify-between px-4 py-3 rounded-lg border ${
-              isDarkMode ? 'bg-gray-800 border-gray-700 text-white' : ' border-gray-200 text-gray-800'
+              isDarkMode ? 'bg-gray-800 border-gray-700 text-white' : 'border-gray-200 text-gray-800'
             }`}
           >
             <span className="flex items-center font-medium">
               <span className="mr-2">Filters</span>
-              {(searchQuery || !selectedCategories.includes('all') || !selectedCountries.includes('all') || !selectedTimeperiods.includes('all') || sortOption !== 'newest') && (
+              {(searchQuery ||
+                !selectedCategories.includes('all') ||
+                !selectedCountries.includes('all') ||
+                !selectedTimeperiods.includes('all') ||
+                sortOption !== 'newest') && (
                 <span className="ml-2 px-2 py-0.5 text-xs rounded-full bg-indigo-600 text-white">
                   {[
                     searchQuery ? 1 : 0,
                     !selectedCategories.includes('all') ? selectedCategories.length : 0,
                     !selectedCountries.includes('all') ? selectedCountries.length : 0,
                     !selectedTimeperiods.includes('all') ? selectedTimeperiods.length : 0,
-                    sortOption !== 'newest' ? 1 : 0
+                    sortOption !== 'newest' ? 1 : 0,
                   ].reduce((a, b) => a + b, 0)}
                 </span>
               )}
@@ -175,8 +216,14 @@ const Home: React.FC = () => {
 
         {/* Mobile sidebar - Overlay when open */}
         {isMobileMenuOpen && (
-          <div className="md:hidden fixed inset-0 z-40 bg-black bg-opacity-50" onClick={() => setIsMobileMenuOpen(false)}>
-            <div className="absolute top-0 left-0 h-full w-64 bg-white dark:bg-gray-800 p-4" onClick={e => e.stopPropagation()}>
+          <div
+            className="md:hidden fixed inset-0 z-40 bg-black bg-opacity-50"
+            onClick={() => setIsMobileMenuOpen(false)}
+          >
+            <div
+              className="absolute top-0 left-0 h-full w-64 bg-white dark:bg-gray-800 p-4"
+              onClick={(e) => e.stopPropagation()}
+            >
               <div className="flex justify-between items-center mb-4">
                 <h2 className="text-lg font-semibold">Filters</h2>
                 <button onClick={() => setIsMobileMenuOpen(false)} className="p-2">
@@ -236,7 +283,7 @@ const Home: React.FC = () => {
           </div>
 
           {/* Scrollable content area */}
-          <div className="flex-1 px-8  overflow-y-auto">
+          <div className="flex-1 px-8 overflow-y-auto">
             <FactsGrid
               facts={filteredFacts}
               totalFacts={filteredFacts.length}
