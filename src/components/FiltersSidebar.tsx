@@ -1,6 +1,6 @@
 // Updated FiltersSidebar.tsx with sort options and reset button
 import React from 'react';
-import { SlidersHorizontal, ChevronDown, Globe, Book, Calendar, X, ArrowDownAZ, ArrowUpZA, Clock } from 'lucide-react';
+import { SlidersHorizontal, Globe, Book, Calendar, X, ArrowDownAZ, ArrowUpZA, Clock } from 'lucide-react';
 import { Fact } from '../data/factsData';
 import { FilterAccordion } from './FilterAccordion';
 import { CheckboxGroup } from './CheckboxGroup';
@@ -30,7 +30,6 @@ interface FiltersSidebarProps {
 export const FiltersSidebar: React.FC<FiltersSidebarProps> = ({
   searchQuery,
   setSearchQuery,
-  showFilters,
   setShowFilters,
   selectedCategories,
   setSelectedCategories,
@@ -47,22 +46,7 @@ export const FiltersSidebar: React.FC<FiltersSidebarProps> = ({
   sortOption,
   setSortOption,
 }) => {
-  const hasActiveFilters =
-    searchQuery !== '' ||
-    !selectedCategories.includes('all') ||
-    !selectedCountries.includes('all') ||
-    !selectedTimeperiods.includes('all') ||
-    sortOption !== 'newest';
 
-  const getActiveFiltersCount = () => {
-    let count = 0;
-    if (!selectedCategories.includes('all')) count += selectedCategories.length;
-    if (!selectedCountries.includes('all')) count += selectedCountries.length;
-    if (!selectedTimeperiods.includes('all')) count += selectedTimeperiods.length;
-    if (searchQuery) count++;
-    if (sortOption !== 'newest') count++;
-    return count;
-  };
 
   return (
     <div className={`h-full px-4 py-0 ${isDarkMode ? 'bg-gray-800' : 'bg-white border-r-1 border-gray-300 rounded-none'} rounded-lg`}>

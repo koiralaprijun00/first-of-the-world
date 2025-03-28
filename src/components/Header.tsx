@@ -1,6 +1,6 @@
 // Updated Header.tsx with proper positioning
 import React, { useState, useEffect } from 'react';
-import { Menu, X, Moon, Sun, Search } from 'lucide-react';
+import { Menu, Moon, Sun, Search } from 'lucide-react';
 import Link from 'next/link';
 
 interface HeaderProps {

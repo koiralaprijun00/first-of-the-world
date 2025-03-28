@@ -4,12 +4,6 @@ import fs from 'fs/promises';
 import path from 'path';
 import { Fact } from '../../../data/factsData';
 
-interface ApiResponse {
-  facts: Fact[];
-  total: number;
-  hasMore: boolean;
-}
-
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const page = searchParams.get('page') || '1';
