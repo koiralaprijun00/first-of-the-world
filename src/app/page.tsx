@@ -4,8 +4,9 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import FactsGrid from '../components/FactsGrid';
 import { FactModal } from '../components/FactModal';
+import { Header } from '../components/Header'; // Import Header component
 import factsData from '../data/facts/facts_1.json';
-import Sidebar from '../components/FiltersSidebar';
+import { FiltersSidebar as Sidebar } from '../components/FiltersSidebar';
 import categoriesData from '../data/categories.json';
 import countriesData from '../data/countries.json';
 import timeperiodsData from '../data/timeperiods.json';
@@ -17,6 +18,7 @@ const Home: React.FC = () => {
   const [loadingMore, setLoadingMore] = useState(false);
   const [sortOption, setSortOption] = useState('newest');
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [bookmarkedFacts, setBookmarkedFacts] = useState<number[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentFact, setCurrentFact] = useState<Fact | null>(null);
@@ -43,8 +45,9 @@ const Home: React.FC = () => {
 
   // Toggle dark mode
   const toggleDarkMode = () => {
-    setIsDarkMode(!isDarkMode);
-    document.documentElement.classList.toggle('dark');
+    const newDarkMode = !isDarkMode;
+    setIsDarkMode(newDarkMode);
+    document.documentElement.classList.toggle('dark', newDarkMode);
   };
 
   // Toggle bookmark
@@ -135,11 +138,21 @@ const Home: React.FC = () => {
 
   return (
     <div className={`min-h-screen ${isDarkMode ? 'dark bg-gray-900' : 'bg-gray-50'}`}>
+      {/* Add Header component */}
+      <Header 
+        isDarkMode={isDarkMode}
+        setIsDarkMode={setIsDarkMode}
+        isMobileMenuOpen={isMobileMenuOpen}
+        setIsMobileMenuOpen={setIsMobileMenuOpen}
+      />
+
       <div className="container mx-auto p-6 flex flex-col md:flex-row gap-6">
         {/* Sidebar */}
         <Sidebar
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
+          showFilters={isMobileMenuOpen}
+          setShowFilters={setIsMobileMenuOpen}
           categories={categoriesData}
           selectedCategories={selectedCategories}
           setSelectedCategories={setSelectedCategories}
@@ -151,6 +164,7 @@ const Home: React.FC = () => {
           setSelectedTimeperiods={setSelectedTimeperiods}
           isDarkMode={isDarkMode}
           toggleDarkMode={toggleDarkMode}
+          facts={facts}
         />
 
         {/* Facts Grid */}

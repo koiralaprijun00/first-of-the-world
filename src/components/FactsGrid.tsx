@@ -93,38 +93,24 @@ const FactsGrid: React.FC<FactsGridProps> = ({
             <div
               key={fact.id}
               className={`p-6 rounded-lg shadow-md cursor-pointer transition-transform transform hover:scale-105 ${
-                isDarkMode ? 'bg-gray-800 text-white' : 'bg-gray-100 text-gray-900'
+                isDarkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'
               }`}
               onClick={() => openFactModal(fact)}
             >
-              <div className="flex justify-between items-center mb-4">
-                <span
+              <div className="flex justify-between items-center">
+              <span className="text-sm mb-4">{fact.year}</span>
+              </div>
+              <h3 className="text-md">{fact.question}</h3>
+              <p className="text-lg font-bold">{fact.answer}</p>
+              <p className="text-sm mt-2 mb-4">{fact.description}</p>
+              <span
                   className={`text-sm font-semibold px-3 py-1 rounded-full ${getCategoryColor(
                     fact.category
                   )} text-white`}
                 >
                   {fact.category}
                 </span>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    toggleBookmark(fact.id);
-                  }}
-                  className={`text-2xl ${bookmarkedFacts.includes(fact.id) ? 'text-yellow-500' : 'text-gray-400'}`}
-                >
-                  {bookmarkedFacts.includes(fact.id) ? '★' : '☆'}
-                </button>
-              </div>
-              <h3 className="text-lg font-bold mb-2">{fact.question}</h3>
-              <p className="text-md font-semibold">{fact.answer}</p>
-              <p className="text-sm mt-2">{fact.description}</p>
-              <div className="mt-4 flex justify-between items-center">
-                <span className="text-sm">{fact.year}</span>
-                <div className="flex space-x-2">
-                  <span className="text-sm">❤️ {fact.likes}</span>
-                  <span className="text-sm">🔖 {fact.bookmarks}</span>
-                </div>
-              </div>
+
             </div>
           ))
         ) : (
