@@ -1,4 +1,4 @@
-// src/components/Header.tsx
+// Updated Header.tsx with proper positioning
 import React, { useState, useEffect } from 'react';
 import { Menu, X, Moon, Sun, Search } from 'lucide-react';
 import Link from 'next/link';
@@ -42,69 +42,37 @@ export const Header: React.FC<HeaderProps> = ({
   // Early return with a skeleton UI that matches your dark/light theme before client-side hydration
   if (!mounted) {
     return (
-      <>
-        {/* Simplified Header that doesn't depend on client-side state */}
-        <header className="sticky top-0 z-30 transition-all duration-500 bg-white text-gray-900">
-          <div className="container mx-auto px-4">
-            <div className="flex justify-between items-center h-16">
-              <div className="flex items-center">
-                <div className="w-6 h-6 mr-4"></div>
-                <div className="flex items-center space-x-2">  
-                  <h1 className="text-xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-                    First of the World
-                  </h1>
-                </div>
-              </div>
-              <div className="flex items-center space-x-6">
-                <nav className="hidden md:flex items-center space-x-8"></nav>
-                <div className="w-9 h-9"></div>
-                <div className="hidden md:block w-20 h-10"></div>
+      <header className="w-full bg-white text-gray-900">
+        <div className="container mx-auto px-4">
+          <div className="flex justify-between items-center h-16">
+            <div className="flex items-center">
+              <div className="w-6 h-6 mr-4"></div>
+              <div className="flex items-center space-x-2">  
+                <h1 className="text-xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                  First of the World
+                </h1>
               </div>
             </div>
-          </div>
-        </header>
-
-        {/* Simplified Search Section */}
-        <div className="py-20 md:py-32 px-4 bg-white transition-colors duration-300">
-          <div className="container mx-auto max-w-4xl text-center">
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-8 text-gray-900">
-              Discover the First of Everything
-            </h2>
-            <div className="relative mx-auto max-w-3xl">
-              <div className="w-full py-6 px-8 pr-16 text-xl md:text-2xl rounded-md shadow-2xl"></div>
+            <div className="flex items-center space-x-6">
+              <nav className="hidden md:flex items-center space-x-8"></nav>
+              <div className="w-9 h-9"></div>
             </div>
           </div>
         </div>
-      </>
+      </header>
     );
   }
 
   return (
     <>
-      {/* Mobile Menu */}
-      <div className={`fixed inset-0 z-50 transform ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'} transition-transform duration-300 ease-in-out md:hidden`}>
-        <div className={`h-full w-64 ${isDarkMode ? 'bg-gray-800' : 'bg-white'} p-5`}>
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-xl font-bold">Menu</h2>
-            <button onClick={() => setIsMobileMenuOpen(false)} className="p-1">
-              <X className="h-6 w-6" />
-            </button>
-          </div>
-          <nav className="space-y-4">
-            <Link href="/submit-a-fact" className="block py-2 border-b border-gray-200 hover:text-indigo-600 transition-colors">Submit a Fact</Link>
-          </nav>
-        </div>
-        <div className="h-full w-full bg-black bg-opacity-50" onClick={() => setIsMobileMenuOpen(false)}></div>
-      </div>
-
       {/* Main Header */}
-      <header className={`sticky top-0 z-30 transition-all duration-500 ${isDarkMode ? 'bg-gray-900 text-white' : 'bg-white text-gray-900'}`}>
+      <header className={`w-full ${isDarkMode ? 'bg-gray-900 text-white' : 'bg-white text-gray-900'}`}>
         <div className="container mx-auto px-4">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
               <button 
                 className="md:hidden mr-4 p-2 rounded-md hover:bg-gray-100/20" 
-                onClick={() => setIsMobileMenuOpen(true)}
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               >
                 <Menu className="h-6 w-6" />
               </button>

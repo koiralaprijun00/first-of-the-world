@@ -1,9 +1,9 @@
-// src/components/FactsGrid.tsx
+// Simplified FactsGrid.tsx (removed sort controls since they're now in sidebar)
 import React from 'react';
 import { Fact } from '../data/factsData';
 
 interface FactsGridProps {
-  facts: Fact[] | undefined; // Allow facts to be undefined
+  facts: Fact[] | undefined; 
   totalFacts: number;
   sortOption: string;
   setSortOption: (option: string) => void;
@@ -20,50 +20,18 @@ interface FactsGridProps {
 
 const FactsGrid: React.FC<FactsGridProps> = ({
   facts,
-  sortOption,
-  setSortOption,
+  totalFacts,
   isDarkMode,
   openFactModal,
   getCategoryColor,
-  setSearchQuery,
-  setSelectedCategories,
-  setSelectedCountries,
-  setSelectedTimeperiods,
 }) => {
   return (
     <div className="flex-1">
-      {/* Sorting and Filtering Controls */}
-      <div className="mb-6 flex justify-between items-center">
-        <div>
-          <label htmlFor="sort" className="mr-2">
-            Sort by:
-          </label>
-          <select
-            id="sort"
-            value={sortOption}
-            onChange={(e) => setSortOption(e.target.value)}
-            className={`border rounded-md p-2 ${isDarkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'}`}
-          >
-            <option value="newest">Newest</option>
-            <option value="oldest">Oldest</option>
-            <option value="az">A-Z</option>
-            <option value="za">Z-A</option>
-          </select>
-        </div>
-        <div>
-          <button
-            onClick={() => {
-              setSearchQuery('');
-              setSelectedCategories(['all']);
-              setSelectedCountries(['all']);
-              setSelectedTimeperiods(['all']);
-              setSortOption('newest');
-            }}
-            className="text-blue-500 hover:underline"
-          >
-            Reset Filters
-          </button>
-        </div>
+      {/* Results Count */}
+      <div className="mb-6">
+        <h2 className="text-xl font-semibold">
+          {totalFacts} {totalFacts === 1 ? 'Fact' : 'Facts'} Found
+        </h2>
       </div>
 
       {/* Facts Grid */}
@@ -73,7 +41,7 @@ const FactsGrid: React.FC<FactsGridProps> = ({
             <div
               key={fact.id}
               className={`p-6 rounded-lg shadow-md cursor-pointer transition-transform transform hover:scale-102 hover:shadow-lg ${
-                isDarkMode ? 'bg-gray-800 text-white' : ' text-gray-900'
+                isDarkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'
               }`}
               onClick={() => openFactModal(fact)}
             >
@@ -82,7 +50,7 @@ const FactsGrid: React.FC<FactsGridProps> = ({
               </div>
               <h3 className="text-md mb-8">{fact.question}</h3>
               <p className="text-lg font-bold mb-2">{fact.answer}</p>
-              <p className="text-sm mt-2 mb-4">{fact.description}</p>
+              <p className="text-sm mt-2 mb-4 line-clamp-2">{fact.description}</p>
               <span
                 className={`uppercase text-xs font-semibold px-3 py-1 rounded-md ${getCategoryColor(
                   fact.category
@@ -93,9 +61,16 @@ const FactsGrid: React.FC<FactsGridProps> = ({
             </div>
           ))
         ) : (
-          <p className="col-span-3 text-center text-gray-500">
-            {facts === undefined ? 'Loading facts...' : 'No facts available.'}
-          </p>
+          <div className="col-span-3 text-center py-16">
+            <p className="text-xl text-gray-500 dark:text-gray-400">
+              {facts === undefined ? 'Loading facts...' : 'No facts match your current filters.'}
+            </p>
+            {facts && facts.length === 0 && (
+              <p className="mt-2 text-gray-500 dark:text-gray-400">
+                Try adjusting your filters to see more results.
+              </p>
+            )}
+          </div>
         )}
       </div>
     </div>

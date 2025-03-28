@@ -1,12 +1,15 @@
 'use client';
 
 import React, { useState, useEffect, useMemo } from 'react';
+import { FiX } from 'react-icons/fi'; // Importing the X icon from react-icons
 import FactsGrid from '../components/FactsGrid';
 import { FactModal } from '../components/FactModal';
 import { Header } from '../components/Header';
 import { FiltersSidebar as Sidebar } from '../components/FiltersSidebar';
-import factsData1 from '../data/facts/facts_1.json';
-import factsData2 from '../data/facts/facts_2.json';
+import factsData1 from '../data/facts/facts_1.json' assert { type: 'json' };
+import factsData2 from '../data/facts/facts_2.json'assert { type: 'json' };
+import factsData3 from '../data/facts/facts_3.json' assert { type: 'json' };
+import factsData4 from '../data/facts/facts_4.json' assert { type: 'json' };
 import categoriesData from '../data/categories.json';
 import countriesData from '../data/countries.json';
 import timeperiodsData from '../data/timeperiods.json';
@@ -32,7 +35,7 @@ const Home: React.FC = () => {
     setIsDarkMode(initialDarkMode);
     document.documentElement.classList.toggle('dark', initialDarkMode);
 
-    const combinedFacts = [...factsData1, ...factsData2] as Fact[];
+    const combinedFacts = [...factsData1, ...factsData2, ...factsData3,...factsData4] as Fact[];
     setFacts(combinedFacts);
 
     const savedBookmarks = localStorage.getItem('bookmarkedFacts');
@@ -75,6 +78,14 @@ const Home: React.FC = () => {
     setIsModalOpen(false);
     document.body.style.overflow = 'auto';
     setTimeout(() => setCurrentFact(null), 200);
+  };
+
+  const resetFilters = () => {
+    setSearchQuery('');
+    setSelectedCategories(['all']);
+    setSelectedCountries(['all']);
+    setSelectedTimeperiods(['all']);
+    setSortOption('newest');
   };
 
   const filteredFacts = useMemo(() => {
@@ -121,9 +132,9 @@ const Home: React.FC = () => {
   }
 
   return (
-    <div className={`min-h-screen flex flex-col ${isDarkMode ? 'dark bg-gray-900 text-white' : 'bg-gray-50 text-gray-900'}`}>
-      {/* Full-width Fixed Header */}
-      <div className="fixed top-0 left-0 w-full z-50">
+    <div className={`min-h-screen flex flex-col ${isDarkMode ? 'dark bg-gray-900 text-white' : ' text-gray-900'}`}>
+      {/* Header - Full width */}
+      <div className="w-full">
         <Header 
           isDarkMode={isDarkMode}
           setIsDarkMode={setIsDarkMode}
@@ -135,37 +146,117 @@ const Home: React.FC = () => {
         />
       </div>
 
-      {/* Main Content Below Header */}
-      <div className="flex flex-1 pt-16"> {/* pt-16 matches header height */}
-        {/* Sidebar */}
-        <Sidebar
-          searchQuery={searchQuery}
-          setSearchQuery={setSearchQuery}
-          showFilters={isMobileMenuOpen}
-          setShowFilters={setIsMobileMenuOpen}
-          selectedCategories={selectedCategories}
-          setSelectedCategories={setSelectedCategories}
-          selectedCountries={selectedCountries}
-          setSelectedCountries={setSelectedCountries}
-          selectedTimeperiods={selectedTimeperiods}
-          setSelectedTimeperiods={setSelectedTimeperiods}
-          isDarkMode={isDarkMode}
-          toggleDarkMode={toggleDarkMode}
-          facts={facts}
-          categories={categoriesData}
-          countries={countriesData}
-          timeperiods={timeperiodsData}
-          resetFilters={() => {
-            setSearchQuery('');
-            setSelectedCategories(['all']);
-            setSelectedCountries(['all']);
-            setSelectedTimeperiods(['all']);
-            setSortOption('newest');
-          }}
-        />
+      {/* Main content area - Below header */}
+      <div className="flex flex-1">
+        {/* Mobile sidebar toggle - Only show on mobile */}
+        <div className="md:hidden p-4">
+          <button 
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className={`w-full flex items-center justify-between px-4 py-3 rounded-lg border ${
+              isDarkMode ? 'bg-gray-800 border-gray-700 text-white' : ' border-gray-200 text-gray-800'
+            }`}
+          >
+            <span className="flex items-center font-medium">
+              <span className="mr-2">Filters</span>
+              {(searchQuery || !selectedCategories.includes('all') || !selectedCountries.includes('all') || !selectedTimeperiods.includes('all') || sortOption !== 'newest') && (
+                <span className="ml-2 px-2 py-0.5 text-xs rounded-full bg-indigo-600 text-white">
+                  {[
+                    searchQuery ? 1 : 0,
+                    !selectedCategories.includes('all') ? selectedCategories.length : 0,
+                    !selectedCountries.includes('all') ? selectedCountries.length : 0,
+                    !selectedTimeperiods.includes('all') ? selectedTimeperiods.length : 0,
+                    sortOption !== 'newest' ? 1 : 0
+                  ].reduce((a, b) => a + b, 0)}
+                </span>
+              )}
+            </span>
+          </button>
+        </div>
 
-        {/* Facts Grid */}
-        <div className="ml-0 md:ml-64 flex-1 min-h-[calc(100vh-4rem)] overflow-y-auto p-4 md:p-6">
+        {/* Mobile sidebar - Overlay when open */}
+        {isMobileMenuOpen && (
+          <div className="md:hidden fixed inset-0 z-40 bg-black bg-opacity-50" onClick={() => setIsMobileMenuOpen(false)}>
+            <div className="absolute top-0 left-0 h-full w-64 bg-white dark:bg-gray-800 p-4" onClick={e => e.stopPropagation()}>
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-lg font-semibold">Filters</h2>
+                <button onClick={() => setIsMobileMenuOpen(false)} className="p-2">
+                  <FiX className="h-5 w-5" />
+                </button>
+              </div>
+              <Sidebar
+                searchQuery={searchQuery}
+                setSearchQuery={setSearchQuery}
+                showFilters={true}
+                setShowFilters={setIsMobileMenuOpen}
+                selectedCategories={selectedCategories}
+                setSelectedCategories={setSelectedCategories}
+                selectedCountries={selectedCountries}
+                setSelectedCountries={setSelectedCountries}
+                selectedTimeperiods={selectedTimeperiods}
+                setSelectedTimeperiods={setSelectedTimeperiods}
+                isDarkMode={isDarkMode}
+                toggleDarkMode={toggleDarkMode}
+                facts={facts}
+                categories={categoriesData}
+                countries={countriesData}
+                timeperiods={timeperiodsData}
+                resetFilters={resetFilters}
+                sortOption={sortOption}
+                setSortOption={setSortOption}
+              />
+            </div>
+          </div>
+        )}
+
+        {/* Desktop Layout - Two column layout with fixed sidebar */}
+        <div className="hidden md:flex max-w-[90rem] mx-auto">
+          {/* Fixed sidebar for desktop */}
+          <div className="w-64 h-screen sticky top-12 overflow-y-auto">
+            <Sidebar
+              searchQuery={searchQuery}
+              setSearchQuery={setSearchQuery}
+              showFilters={true}
+              setShowFilters={setIsMobileMenuOpen}
+              selectedCategories={selectedCategories}
+              setSelectedCategories={setSelectedCategories}
+              selectedCountries={selectedCountries}
+              setSelectedCountries={setSelectedCountries}
+              selectedTimeperiods={selectedTimeperiods}
+              setSelectedTimeperiods={setSelectedTimeperiods}
+              isDarkMode={isDarkMode}
+              toggleDarkMode={toggleDarkMode}
+              facts={facts}
+              categories={categoriesData}
+              countries={countriesData}
+              timeperiods={timeperiodsData}
+              resetFilters={resetFilters}
+              sortOption={sortOption}
+              setSortOption={setSortOption}
+            />
+          </div>
+
+          {/* Scrollable content area */}
+          <div className="flex-1 p-6 overflow-y-auto">
+            <FactsGrid
+              facts={filteredFacts}
+              totalFacts={filteredFacts.length}
+              sortOption={sortOption}
+              setSortOption={setSortOption}
+              isDarkMode={isDarkMode}
+              bookmarkedFacts={bookmarkedFacts}
+              toggleBookmark={toggleBookmark}
+              openFactModal={openFactModal}
+              getCategoryColor={getCategoryColor}
+              setSearchQuery={setSearchQuery}
+              setSelectedCategories={setSelectedCategories}
+              setSelectedCountries={setSelectedCountries}
+              setSelectedTimeperiods={setSelectedTimeperiods}
+            />
+          </div>
+        </div>
+
+        {/* Mobile Facts Grid (when sidebar is closed) */}
+        <div className="flex-1 p-4 md:hidden">
           <FactsGrid
             facts={filteredFacts}
             totalFacts={filteredFacts.length}

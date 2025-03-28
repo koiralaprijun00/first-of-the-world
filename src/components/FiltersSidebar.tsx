@@ -1,5 +1,6 @@
+// Updated FiltersSidebar.tsx with sort options and reset button
 import React from 'react';
-import { SlidersHorizontal, ChevronDown, Globe, Book, Calendar, X } from 'lucide-react';
+import { SlidersHorizontal, ChevronDown, Globe, Book, Calendar, X, ArrowDownAZ, ArrowUpZA, Clock } from 'lucide-react';
 import { Fact } from '../data/factsData';
 import { FilterAccordion } from './FilterAccordion';
 import { CheckboxGroup } from './CheckboxGroup';
@@ -21,7 +22,9 @@ interface FiltersSidebarProps {
   categories: string[];
   countries: string[];
   timeperiods: string[];
-  resetFilters: () => void; 
+  resetFilters: () => void;
+  sortOption: string;
+  setSortOption: (option: string) => void;
 }
 
 export const FiltersSidebar: React.FC<FiltersSidebarProps> = ({
@@ -41,12 +44,15 @@ export const FiltersSidebar: React.FC<FiltersSidebarProps> = ({
   countries,
   timeperiods,
   resetFilters,
+  sortOption,
+  setSortOption,
 }) => {
   const hasActiveFilters =
     searchQuery !== '' ||
     !selectedCategories.includes('all') ||
     !selectedCountries.includes('all') ||
-    !selectedTimeperiods.includes('all');
+    !selectedTimeperiods.includes('all') ||
+    sortOption !== 'newest';
 
   const getActiveFiltersCount = () => {
     let count = 0;
@@ -54,151 +60,147 @@ export const FiltersSidebar: React.FC<FiltersSidebarProps> = ({
     if (!selectedCountries.includes('all')) count += selectedCountries.length;
     if (!selectedTimeperiods.includes('all')) count += selectedTimeperiods.length;
     if (searchQuery) count++;
+    if (sortOption !== 'newest') count++;
     return count;
   };
 
   return (
-    <>
-      {/* Mobile Filter Toggle Button */}
-      <div className="md:hidden mb-4 px-4">
+    <div className={`h-full px-4 py-0 ${isDarkMode ? 'bg-gray-800' : 'bg-white border-r-1 border-gray-300 rounded-none'} rounded-lg`}>
+      {/* Close button - only for mobile */}
+      <div className="md:hidden flex justify-between items-center mb-4">
+        <h2 className="text-lg font-semibold">Filters</h2>
         <button
-          onClick={() => setShowFilters(!showFilters)}
-          className={`w-full flex items-center justify-between px-4 py-3 rounded-lg border ${
-            isDarkMode ? 'bg-gray-800 border-gray-700 text-white' : 'bg-white border-gray-200 text-gray-800'
-          }`}
-          aria-expanded={showFilters}
-          aria-controls="filters-panel"
+          onClick={() => setShowFilters(false)}
+          className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700"
         >
-          <span className="flex items-center font-medium">
-            <SlidersHorizontal className="h-5 w-5 mr-2" />
-            Filters
-            {hasActiveFilters && (
-              <span className="ml-2 px-2 py-0.5 text-xs rounded-full bg-indigo-600 text-white">
-                {getActiveFiltersCount()}
-              </span>
-            )}
-          </span>
-          <ChevronDown className={`h-5 w-5 transform transition-transform ${showFilters ? 'rotate-180' : ''}`} />
+          <X className="h-5 w-5" />
         </button>
       </div>
 
-      {/* Sidebar Content */}
-      <aside
-        id="filters-panel"
-        className={`${
-          showFilters
-            ? 'fixed top-16 left-0 right-0 bottom-0 z-40 bg-white dark:bg-gray-900 md:bg-transparent md:dark:bg-transparent'
-            : 'hidden md:block'
-        } md:fixed md:top-16 md:left-0 md:w-64 md:h-[calc(100vh-4rem)] md:overflow-y-auto md:border-r md:border-gray-200 md:dark:border-gray-700`}
-      >
-        <div className={`h-full p-4 md:p-6 ${isDarkMode ? 'bg-gray-800/50 md:bg-gray-800' : 'bg-gray-50/80 md:bg-white'} md:border-0 border border-gray-200 dark:border-gray-700 rounded-lg`}>
-          {/* Close Button for Mobile */}
-          <div className="md:hidden flex justify-end mb-4">
-            <button
-              onClick={() => setShowFilters(false)}
-              className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700"
-            >
-              <X className="h-5 w-5" />
-            </button>
-          </div>
+      {/* Filter Content */}
+      <div className="space-y-4">
+        <div className="relative md:hidden"> {/* Search bar - only for mobile */}
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search facts..."
+            className={`w-full pl-10 pr-4 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
+              isDarkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-200 text-gray-800'
+            }`}
+          />
+          <SlidersHorizontal className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+        </div>
 
-          {/* Filter Content */}
-          <div className="space-y-4">
-            <div className="relative">
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search facts..."
-                className={`w-full pl-10 pr-4 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
-                  isDarkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-200 text-gray-800'
+        {/* Sort Options */}
+        <div className="mb-6">
+          <button
+            onClick={resetFilters}
+            className="w-full text-right text-sm mb-4 font-medium text-indigo-600"
+          >
+            Reset All Filters
+          </button>
+
+          <h3 className="text-sm font-medium mb-3 flex items-center">
+            <Clock className="h-4 w-4 mr-2 text-indigo-600" />
+            Sort By
+          </h3>
+          <div className={`w-full rounded-md border ${isDarkMode ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-200'}`}>
+            <div className="grid grid-cols-2 divide-x divide-gray-200 dark:divide-gray-600">
+              <button 
+                className={`flex items-center justify-center py-2 text-sm transition-colors ${
+                  sortOption === 'newest' || sortOption === 'oldest' 
+                    ? 'text-indigo-600 font-medium' 
+                    : isDarkMode ? 'text-gray-300' : 'text-gray-500'
                 }`}
-              />
-              <SlidersHorizontal className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-            </div>
-
-            <FilterAccordion
-              title="Category"
-              icon={<Book className="h-4 w-4 text-indigo-600" />}
-              defaultOpen={true}
-              isDarkMode={isDarkMode}
-            >
-              <CheckboxGroup
-                options={categories.map((category) => ({
-                  id: category,
-                  label: category === 'all' ? 'All Categories' : category.charAt(0).toUpperCase() + category.slice(1),
-                  count: category === 'all' 
-                    ? facts.length 
-                    : facts.filter((f) => f.category === category).length,
-                }))}
-                selected={selectedCategories}
-                onChange={setSelectedCategories}
-                name="category"
-                isDarkMode={isDarkMode}
-              />
-            </FilterAccordion>
-
-            <FilterAccordion
-              title="Country"
-              icon={<Globe className="h-4 w-4 text-indigo-600" />}
-              defaultOpen={false}
-              isDarkMode={isDarkMode}
-            >
-              <CheckboxGroup
-                options={countries.map((country) => ({
-                  id: country,
-                  label: country === 'all' ? 'All Countries' : country,
-                  count: country === 'all' 
-                    ? facts.length 
-                    : facts.filter((f) => f.country.split('/').map((c) => c.trim()).includes(country)).length,
-                }))}
-                selected={selectedCountries}
-                onChange={setSelectedCountries}
-                name="country"
-                isDarkMode={isDarkMode}
-              />
-            </FilterAccordion>
-
-            <FilterAccordion
-              title="Time Period"
-              icon={<Calendar className="h-4 w-4 text-indigo-600" />}
-              defaultOpen={false}
-              isDarkMode={isDarkMode}
-            >
-              <CheckboxGroup
-                options={timeperiods.map((period) => ({
-                  id: period,
-                  label: period === 'all' ? 'All Time Periods' : period.charAt(0).toUpperCase() + period.slice(1),
-                  count: period === 'all' 
-                    ? facts.length 
-                    : facts.filter((f) => f.timeperiod === period).length,
-                }))}
-                selected={selectedTimeperiods}
-                onChange={setSelectedTimeperiods}
-                name="timeperiod"
-                isDarkMode={isDarkMode}
-              />
-            </FilterAccordion>
-
-            {hasActiveFilters && (
-              <button
-                onClick={resetFilters}
-                className="w-full mt-4 px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                onClick={() => setSortOption(sortOption === 'newest' ? 'oldest' : 'newest')}
               >
-                Reset Filters
+                <Clock className="h-3.5 w-3.5 mr-1" />
+                {sortOption === 'newest' ? 'Newest' : sortOption === 'oldest' ? 'Oldest' : 'Date'}
               </button>
-            )}
+              <button 
+                className={`flex items-center justify-center py-2 text-sm transition-colors ${
+                  sortOption === 'az' || sortOption === 'za' 
+                    ? 'text-indigo-600 font-medium' 
+                    : isDarkMode ? 'text-gray-300' : 'text-gray-500'
+                }`}
+                onClick={() => setSortOption(sortOption === 'az' ? 'za' : 'az')}
+              >
+                {sortOption === 'az' ? (
+                  <ArrowDownAZ className="h-3.5 w-3.5 mr-1" />
+                ) : (
+                  <ArrowUpZA className="h-3.5 w-3.5 mr-1" />
+                )}
+                {sortOption === 'az' ? 'A-Z' : sortOption === 'za' ? 'Z-A' : 'Alpha'}
+              </button>
+            </div>
           </div>
         </div>
-      </aside>
 
-      {/* Mobile Overlay */}
-      {showFilters && (
-        <div
-          className="fixed top-16 left-0 right-0 bottom-0 bg-black bg-opacity-50 z-30 md:hidden"
-          onClick={() => setShowFilters(false)}
-        />
-      )}
-    </>
+       
+        <FilterAccordion
+          title="Category"
+          icon={<Book className="h-4 w-4 text-indigo-600" />}
+          defaultOpen={true}
+          isDarkMode={isDarkMode}
+        >
+          <CheckboxGroup
+            options={categories.map((category) => ({
+              id: category,
+              label: category === 'all' ? 'All Categories' : category.charAt(0).toUpperCase() + category.slice(1),
+              count: category === 'all' 
+                ? facts.length 
+                : facts.filter((f) => f.category === category).length,
+            }))}
+            selected={selectedCategories}
+            onChange={setSelectedCategories}
+            name="category"
+            isDarkMode={isDarkMode}
+          />
+        </FilterAccordion>
+
+        <FilterAccordion
+          title="Country"
+          icon={<Globe className="h-4 w-4 text-indigo-600" />}
+          defaultOpen={false}
+          isDarkMode={isDarkMode}
+        >
+          <CheckboxGroup
+            options={countries.map((country) => ({
+              id: country,
+              label: country === 'all' ? 'All Countries' : country,
+              count: country === 'all' 
+                ? facts.length 
+                : facts.filter((f) => f.country.split('/').map((c) => c.trim()).includes(country)).length,
+            }))}
+            selected={selectedCountries}
+            onChange={setSelectedCountries}
+            name="country"
+            isDarkMode={isDarkMode}
+          />
+        </FilterAccordion>
+
+        <FilterAccordion
+          title="Time Period"
+          icon={<Calendar className="h-4 w-4 text-indigo-600" />}
+          defaultOpen={false}
+          isDarkMode={isDarkMode}
+        >
+          <CheckboxGroup
+            options={timeperiods.map((period) => ({
+              id: period,
+              label: period === 'all' ? 'All Time Periods' : period.charAt(0).toUpperCase() + period.slice(1),
+              count: period === 'all' 
+                ? facts.length 
+                : facts.filter((f) => f.timeperiod === period).length,
+            }))}
+            selected={selectedTimeperiods}
+            onChange={setSelectedTimeperiods}
+            name="timeperiod"
+            isDarkMode={isDarkMode}
+          />
+        </FilterAccordion>
+      </div>
+    </div>
   );
 };
